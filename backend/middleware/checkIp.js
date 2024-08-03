@@ -1,6 +1,18 @@
-// middleware/checkIp.js
+const fs = require('fs');
+const path = require('path');
+
 module.exports = function (req, res, next) {
-    const allowedIp = '152.58.187.38'; // Replace this with your actual IP address
+    const filePath = path.join(__dirname, '../currentIp.json');
+    let allowedIp;
+
+    try {
+        const ipData = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+        allowedIp = ipData.allowedIp;
+    } catch (error) {
+        console.error('Failed to read allowed IP:', error);
+        return res.status(500).send('Server error');
+    }
+
     const clientIp = req.ip || req.connection.remoteAddress;
 
     if (clientIp === allowedIp) {

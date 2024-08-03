@@ -20,15 +20,23 @@ const Dashboard = () => {
     const columnTypes = ["VARCHAR(255)", "INT", "TEXT", "DATE", "DATETIME", "BOOLEAN", "FLOAT", "DOUBLE", "DECIMAL", "BLOB", "CHAR(1)", "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT", "TIME", "YEAR", "MEDIUMTEXT", "LONGTEXT", "POINT"];
 
     useEffect(() => {
-        axios.get('https://api.ipify.org?format=json')
-            .then(res => {
-                const clientIp = res.data.ip;
-                const allowedIp = '152.58.187.38'; // Replace this with your actual IP address
+        const checkIp = async () => {
+            try {
+                const clientIpResponse = await axios.get('https://api.ipify.org?format=json');
+                const clientIp = clientIpResponse.data.ip;
+
+                const allowedIpResponse = await axios.get('http://localhost:8000/api/allowedIp');
+                const allowedIp = allowedIpResponse.data.allowedIp;
+
                 if (clientIp !== allowedIp) {
                     navigate('/'); // Redirect to home or another route if IP doesn't match
                 }
-            })
-            .catch(err => console.error(err));
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        checkIp();
     }, [navigate]);
 
     const addColumn = () => {
